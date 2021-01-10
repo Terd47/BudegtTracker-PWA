@@ -1,4 +1,13 @@
 {
+  "name": "BudgetTracker-pwd app",
+  "short_name": "BudgetTracker",
+  "orientation": "portrait",
+  "display": "standalone",
+  "start_url": "/",
+  "description": "An application that allows you to track your budget and monthly spendings.",
+  "background_color": "#01579b",
+  "theme_color": "#ffffff",
+  "theme-color": "#ffffff",
   "icons": [
     {
       "src": "./icons/icon-512x512.png",
@@ -10,14 +19,5 @@
       "sizes": "192x192",
       "type": "image/png"
     }
-  ],
-  "name": "BudgetTracker-pwd app",
-  "short_name": "BudgetTracker",
-  "orientation": "portrait",
-  "display": "standalone",
-  "start_url": "/",
-  "description": "An application that allows you to track your budget and monthly spendings.",
-  "background_color": "#01579b",
-  "theme_color": "#ffffff",
-  "theme-color": "#ffffff"
+  ]
 }
