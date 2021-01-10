@@ -1,7 +1,6 @@
 const PRECACHE = 'precache-v1';
 const RUNTIME = 'runtime';
 const FILES_TO_CACHE = [
-  '/',
   '/index.html',
   '/db.js',
   '/styles.css',
