@@ -1,35 +1,39 @@
-// PWA service worker to cache data
-const APP_CACHE = 'static-cache-v2';
-const DATA_CACHE = 'data-cache-v1';
-const FILES_TO_CACHE = [
-  '/',
-  '/db.js',
-  '/index.html',
-  '/styles.css',
-  '/index.js',
-  '/manifest.webmanifest',
-  '/icons/icon-192x192.png',
-  '/icons/icon-512x512.png'
+
+const APP_CACHE = "static-cache-v2";
+const DATA_CACHE = "data-cache-v1";
+
+const staticFilesToPreCache = [
+  "/",
+  "/db.js",
+  "/manifest.webmanifest",
+  "/index.js",
+  "/index.html",
+  "/styles.css",
+  "/icons/icon-192x192.png",
+  "/icons/icon-512x512.png"
 ];
 
-self.addEventListener('install', event => {
-  event.waitUntil(
-    caches.open(APP_CACHE)
-      .then(cache => {
-        return cache.addAll(FILES_TO_CACHE);
-      })
+
+// install
+self.addEventListener("install", function(evt) {
+  evt.waitUntil(
+    caches.open(APP_CACHE).then(cache => {
+      console.log("Your files were pre-cached successfully!");
+      return cache.addAll(staticFilesToPreCache);
+    })
   );
-    self.skipWaiting();
+
+  self.skipWaiting();
 });
 
-// The activate handler takes care of cleaning up old caches.
+// activate
 self.addEventListener("activate", function(evt) {
   evt.waitUntil(
     caches.keys().then(keyList => {
       return Promise.all(
         keyList.map(key => {
           if (key !== APP_CACHE && key !== DATA_CACHE) {
-            console.log("Remove old cache data", key);
+            console.log("Removing old cache data", key);
             return caches.delete(key);
           }
         })
@@ -40,31 +44,35 @@ self.addEventListener("activate", function(evt) {
   self.clients.claim();
 });
 
+// fetch
 self.addEventListener("fetch", function(evt) {
-  if (evt.request.url.includes("/api/")) {
+  const {url} = evt.request;
+  if (url.includes("/api/")){
     evt.respondWith(
       caches.open(DATA_CACHE).then(cache => {
         return fetch(evt.request)
           .then(response => {
-            // on successful response, clone and store in cache.
+            // If the response was good, clone it and store it in the cache.
             if (response.status === 200) {
-              cache.put(evt.request.url, response.clone());
+              cache.put(evt.request, response.clone());
             }
 
             return response;
           })
           .catch(err => {
-            // if no network, check cache
+            // Network request failed, try to get it from the cache.
             return cache.match(evt.request);
           });
       }).catch(err => console.log(err))
     );
-
-    return;
+  } else {
+    // respond from static cache, request is not for /api/*
+    evt.respondWith(
+      caches.open(APP_CACHE).then(cache => {
+        return cache.match(evt.request).then(response => {
+          return response || fetch(evt.request);
+        });
+      })
+    );
   }
-  evt.respondWith(
-    caches.match(evt.request).then(function(response) {
-      return response || fetch(evt.request);
-    })
-  );
 });

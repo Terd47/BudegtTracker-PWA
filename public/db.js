@@ -8,19 +8,18 @@ request.onupgradeneeded = function(event) {
   db.createObjectStore("pendingTransactions", { autoIncrement: true });
 };
 
-request.onsuccess = function(event) {
+request.onsuccess = event => {
   db = event.target.result;
-  // check if app is online before reading from db
   if (navigator.onLine) {
     checkDatabase();
   }
 };
 
-request.onerror = function(event) {
+request.onerror = event => {
   db = event.target.result;
 };
 
-function saveRecord(record) {
+const saveRecord = record => {
   // create a transaction on the pending db with readwrite access
   const transaction = db.transaction(["pendingTransactions"], "readwrite");
   const pendingTransactions = transaction.objectStore("pendingTransactions");
@@ -32,7 +31,7 @@ function checkDatabase() {
   const pendingTransactions = transaction.objectStore("pendingTransactions");
   const getAll = pendingTransactions.getAll();
 
-  getAll.onsuccess = function() {
+  getAll.onsuccess = () => {
     if (getAll.result.length > 0) {
       fetch("/api/transaction/bulk", {
         method: "POST",
@@ -45,7 +44,6 @@ function checkDatabase() {
       .then(response => response.json())
       .then(() => {
         const transaction = db.transaction(["pendingTransactions"], "readwrite");
-        // access your pending object store
         const pendingTransactions = transaction.objectStore("pendingTransactions");
         db = request.result;
         pendingTransactions.clear();
