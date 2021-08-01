@@ -31,5 +31,3 @@ N/A
 ## ScreenShots
 ![budgetTracker dashboard](./public/images/budget.PNG)
 
-# Author
-# Doh Terdlar 
